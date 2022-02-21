@@ -24,6 +24,11 @@ class KartobuilderServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
         }
+
+        $this->publishes([
+            __DIR__.'/../resourses/js/Pages/Map.vue' => resource_path('js/Pages/mapIndex.vue'),
+            __DIR__.'/../resourses/js/Pages/Map_element.vue' => resource_path('js/Pages/Map_element.vue'),
+        ], 'map-views');
     }
 
     /**
