@@ -3,6 +3,7 @@
 namespace Noxyz20\Kartobuilder;
 
 use Illuminate\Support\ServiceProvider;
+use Noxyz20\Kartobuilder\Console\InstallCommand;
 
 
 class KartobuilderServiceProvider extends ServiceProvider
@@ -23,11 +24,14 @@ class KartobuilderServiceProvider extends ServiceProvider
             });
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
+            $this->commands([
+                InstallCommand::class,
+            ]);
         }
 
         $this->publishes([
-            __DIR__.'/../resourses/js/Pages/Map.vue' => resource_path('js/Pages/mapIndex.vue'),
-            __DIR__.'/../resourses/js/Pages/Map_element.vue' => resource_path('js/Pages/Map_element.vue'),
+            __DIR__.'/../resources/js/Map.vue' => resource_path('js/Pages/Map.vue'),
+            __DIR__.'/../resources/js/MapElement.vue' => resource_path('js/Pages/MapElement.vue'),
         ], 'map-views');
     }
 

@@ -3,16 +3,19 @@
 namespace Noxyz20\Kartobuilder\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\routing\Controller;
+use Illuminate\Routing\Controller;
 use Noxyz20\Kartobuilder\Models\Map;
 use Noxyz20\Kartobuilder\Models\MapElement;
+use Inertia\Inertia;
 
 class MapBuilderController extends Controller 
 {
     public function index()
     {
         $maps = Map::all();
-        dd($maps);
+        return Inertia::render('Map', [
+            'maps' => $maps,
+        ]);
     }
 
     public function show($id)

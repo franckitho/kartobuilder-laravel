@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MapElement extends Model
 {
-    protected $table = 'Map_elements';
+    protected $table = 'map_elements';
 
     protected $fillable = [
         'name',

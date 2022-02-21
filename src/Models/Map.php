@@ -8,7 +8,7 @@ use Noxyz20\Kartobuilder\Models\MapElement;
 
 class Map extends Model
 {
-    protected $table = 'Maps';
+    protected $table = 'maps';
 
     protected $fillable = [
         'name'

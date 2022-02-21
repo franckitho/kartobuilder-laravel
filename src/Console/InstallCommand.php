@@ -28,7 +28,7 @@ class InstallCommand extends Command
 
         $this->call('vendor:publish', [
             '--tag' => 'map-views',
-            '--force' => $this->option('force'),
+            '--force' => true,
         ]);
 
         $this->info('Kartobuilder installed successfully.');
