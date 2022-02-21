@@ -1,0 +1,23 @@
+# Node.js
+#
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# Composer
+#
+/vendor
+composer.phar
+
+# IntelliJ/PhpStorm
+#
+/.idea
+
+# Visual Studio Code
+#
+/.vscode
+
+# OSX
+#
+.DS_Store
+Thumbs.db

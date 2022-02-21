@@ -1,0 +1,25 @@
+{
+    "name": "noxyz20/kartobuilder-laravel",
+    "description": "Laravel package for building your own map.",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Noxyz20\\Kartobuilder\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Noxyz20\\Kartobuilder\\KartobuilderServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Franck Colonna",
+            "email": "contact@franckcolonna.fr"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {}
+}
