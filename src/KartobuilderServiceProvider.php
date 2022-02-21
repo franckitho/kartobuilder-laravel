@@ -14,7 +14,7 @@ class KartobuilderServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        dd('boot');
+        //dd('boot');
     }
 
     /**
