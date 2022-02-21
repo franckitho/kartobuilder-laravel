@@ -13,9 +13,10 @@ class CreateMapElementsTables extends Migration
      */
     public function up()
     {
-        Schema::create('Map_elements', function (Blueprint $table) {
+        Schema::create('map_elements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('map_id')->constrained();
+            $table->unsignedBigInteger('map_id');
+            $table->foreign('map_id')->references('id')->on('maps');
             $table->string('name');
             $table->string('GeoJSON');
             $table->timestamps();

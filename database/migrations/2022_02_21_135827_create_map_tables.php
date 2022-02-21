@@ -13,7 +13,7 @@ class CreateMapTables extends Migration
      */
     public function up()
     {
-        Schema::create('Maps', function (Blueprint $table) {
+        Schema::create('maps', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->timestamps();

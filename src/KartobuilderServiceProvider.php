@@ -14,7 +14,16 @@ class KartobuilderServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //dd('boot');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
+        
+        $this->app['router']->namespace('Noxyz20\Kartobuilder\Controllers')
+            ->middleware(['web'])
+            ->group(function () {
+                $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+            });
+        if ($this->app->runningInConsole()) {
+            $this->bootForConsole();
+        }
     }
 
     /**
@@ -25,5 +34,12 @@ class KartobuilderServiceProvider extends ServiceProvider
     public function register()
     {
         //
+    }
+
+    public function bootForConsole()
+    {
+        $this->publishes([
+            __DIR__ . '/../database/migrations/' => database_path('migrations'),
+        ], 'migrations');
     }
 }
