@@ -5,7 +5,6 @@ namespace Noxyz20\Kartobuilder;
 use Illuminate\Support\ServiceProvider;
 use Noxyz20\Kartobuilder\Console\InstallCommand;
 
-
 class KartobuilderServiceProvider extends ServiceProvider
 {
     /**

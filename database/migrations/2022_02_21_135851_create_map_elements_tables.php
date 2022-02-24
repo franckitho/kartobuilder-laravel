@@ -18,7 +18,7 @@ class CreateMapElementsTables extends Migration
             $table->unsignedBigInteger('map_id');
             $table->foreign('map_id')->references('id')->on('maps');
             $table->string('name');
-            $table->string('GeoJSON');
+            $table->json('GeoJSON');
             $table->timestamps();
         });
     }

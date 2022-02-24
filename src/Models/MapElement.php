@@ -10,6 +10,8 @@ class MapElement extends Model
 
     protected $fillable = [
         'name',
+        'map_id',
         'GeoJSON'
     ];
+
 }
