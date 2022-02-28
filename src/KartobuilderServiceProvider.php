@@ -15,12 +15,15 @@ class KartobuilderServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
-        
-        $this->app['router']->namespace('Noxyz20\Kartobuilder\Controllers')
-            ->middleware(['web'])
-            ->group(function () {
-                $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
-            });
+
+        if(env('KARTOBUILDER_ROUTE_ENABLE') == false){
+            $this->app['router']->namespace('Noxyz20\Kartobuilder\Controllers')
+                ->middleware(['web'])
+                ->group(function () {
+                    $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+                });
+        }
+
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
             $this->commands([

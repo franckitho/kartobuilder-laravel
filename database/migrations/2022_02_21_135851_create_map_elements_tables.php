@@ -16,7 +16,7 @@ class CreateMapElementsTables extends Migration
         Schema::create('map_elements', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('map_id');
-            $table->foreign('map_id')->references('id')->on('maps');
+            $table->foreign('map_id')->references('id')->on('maps')->cascadeOnDelete();
             $table->string('name');
             $table->json('GeoJSON');
             $table->timestamps();

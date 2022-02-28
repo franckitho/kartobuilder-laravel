@@ -6,20 +6,13 @@ use Inertia\Inertia;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Facades\URL;
 use Noxyz20\Kartobuilder\Models\Map;
 use Illuminate\Support\Facades\Redirect;
 use Noxyz20\Kartobuilder\Models\MapElement;
 
-class MapBuilderController extends Controller 
+class MapElementController extends Controller 
 {
-    public function index()
-    {
-        $maps = Map::all();
-        return Inertia::render('Map', [
-            'maps' => $maps,
-        ]);
-    }
-
     public function show($id)
     {
         $map = Map::find($id);
@@ -30,6 +23,7 @@ class MapBuilderController extends Controller
         return Inertia::render('MapElement', [
             'map' => $map,
             'mapElement' => $mapElement,
+            'currentRoute' => route('map.store'),
         ]);
     }
 
