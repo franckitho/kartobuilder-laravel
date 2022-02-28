@@ -2,7 +2,7 @@
 
 namespace Noxyz20\Kartobuilder;
 
-use Illuminate\Support\ServiceProvider;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Noxyz20\Kartobuilder\Console\InstallCommand;
 
 class KartobuilderServiceProvider extends ServiceProvider
@@ -23,6 +23,9 @@ class KartobuilderServiceProvider extends ServiceProvider
                     $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
                 });
         }
+        \Route::middleware('api')->prefix('api')->group(function () {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+        });
 
         if ($this->app->runningInConsole()) {
             $this->bootForConsole();
