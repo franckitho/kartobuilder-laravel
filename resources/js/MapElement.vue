@@ -71,7 +71,7 @@
                             </div>
                             <div v-if="this.phase === 2" class="flex flex-row space-x-2 mt-2">
                                 <button
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                    class="bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
                                     @click="saveZone">
                                     Create
                                 </button>
@@ -84,8 +84,7 @@
                                 :center="[42.309410, 	9.149022]" :zoom="14">
                                 <l-marker v-for="marker, index in markers" v-show="markers" v-bind:key="index"
                                     :lat-lng="marker.latlng" @click="deleteMarker(index)"></l-marker>
-                                <l-polygon :lat-lngs="zone" color="#41b782" :fill="true" :fillOpacity="0.5"
-                                    fillColor="#41b782" />
+                                <l-polygon :lat-lngs="polygon" v-if="render"></l-polygon>
                                 <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" layer-type="base"
                                     name="OpenStreetMap"></l-tile-layer>
                                 <l-geo-json v-for="element in listGeoJSON" v-show="listGeoJSON" v-bind:key="element.id"
@@ -122,9 +121,10 @@ export default {
       zoom: 2,
       phase: 0,
       markers: [],
-      polygons: [],
+      polygon: [],
       listGeoJSON: null,
       name: '',
+      render: false,
     }
   },
   props: {
@@ -137,11 +137,12 @@ export default {
   },
   computed: {
     zone() {
-      return this.polygons
+      return this.polygon
     }
   },
   methods: {
     addMarker(event) {
+      this.render = false
       if(this.phase === 0) {
         return
       }
@@ -163,13 +164,15 @@ export default {
         if(event.latlng == undefined) {
           return
         }
-        var lastZoneIndex = this.polygons.length - 1
-        if(this.polygons[lastZoneIndex]) {
-          if(this.polygons[lastZoneIndex][0] === event.latlng.lat && this.polygons[lastZoneIndex][1] === event.latlng.lng) {
+        var lastZoneIndex = this.polygon.length - 1
+        if(this.polygon[lastZoneIndex]) {
+          if(this.polygon[lastZoneIndex][0] === event.latlng.lat && this.polygon[lastZoneIndex][1] === event.latlng.lng) {
             return
           }
         }
-        this.polygons.push([event.latlng.lat, event.latlng.lng]);
+        
+        this.polygon.push([event.latlng.lat, event.latlng.lng]);
+        this.render = true
       }
     },
     deleteMarker(id) {
@@ -182,7 +185,20 @@ export default {
         name: this.name,
         map_id: this.map.id
       }
+      this.name = ''
       this.markers = []
+      this.$inertia.post(route('map.store'), data)
+    },
+    saveZone() {
+      this.phase = 0
+      var data = {
+        polygon: this.polygon,
+        name: this.name,
+        map_id: this.map.id
+      }
+      this.polygon = []
+      this.name = ''
+      this.render = false
       this.$inertia.post(route('map.store'), data)
     },
     deleteElement(id) {
@@ -198,8 +214,8 @@ export default {
     mapElement(newElement, oldElement){
       this.listGeoJSON = newElement
     },
-    polygons(newPolygon, oldPolygon) {
-      this.polygons = newPolygon
+    polygon(newPolygon, oldPolygon) {
+      this.polygon = newPolygon
     }
   }
 };
