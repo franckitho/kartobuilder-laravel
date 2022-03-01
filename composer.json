@@ -23,8 +23,8 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.4",
-        "illuminate/support": "^8",
-        "inertiajs/inertia-laravel": "^0.4"
+        "illuminate/support": ">=8",
+        "inertiajs/inertia-laravel": ">=0.4"
     }
   
 }
