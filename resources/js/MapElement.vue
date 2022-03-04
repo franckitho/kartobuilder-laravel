@@ -12,36 +12,41 @@
                         <div class="w-2/4">
                             <h1 class="text-3xl">Create</h1>
                             <div class="flex flex-row my-2 space-x-2">
-                                <button
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                                    @click="this.phase = 1" v-if="this.phase === 0 || this.phase === 2">
-                                    Point
-                                </button>
-                                <button
-                                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
-                                    @click="this.phase = 0, markers = []" v-if="this.phase === 1">
-                                    Cancel
-                                </button>
-                                <button
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                                    @click="this.phase = 2" v-if="this.phase === 0 || this.phase === 1">
-                                    Aera
-                                </button>
-                                <button
-                                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
-                                    @click="this.phase = 0, polygon = []" v-if="this.phase === 2">
-                                    Cancel
-                                </button>
-                                <button
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                                    @click="this.phase = 3" v-if="this.phase === 0 || this.phase === 1">
-                                    Path
-                                </button>
-                                <button
-                                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
-                                    @click="this.phase = 0, polyline = []" v-if="this.phase === 3">
-                                    Cancel
-                                </button>
+                                <div class="flex space-x-2">
+                                    <button
+                                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                        @click="this.phase = 1" v-if="this.phase === 0 || this.phase === 2">
+                                        Point
+                                    </button>
+                                    <button
+                                        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
+                                        @click="this.phase = 0, markers = []" v-if="this.phase === 1">
+                                        Cancel
+                                    </button>
+                                    <button
+                                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                        @click="this.phase = 2" v-if="this.phase === 0 || this.phase === 1">
+                                        Aera
+                                    </button>
+                                    <button
+                                        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
+                                        @click="this.phase = 0, polygon = []" v-if="this.phase === 2">
+                                        Cancel
+                                    </button>
+                                    <button
+                                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                        @click="this.phase = 3" v-if="this.phase === 0 || this.phase === 1">
+                                        Path
+                                    </button>
+                                    <button
+                                        class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
+                                        @click="this.phase = 0, polyline = []" v-if="this.phase === 3">
+                                        Cancel
+                                    </button>
+                                </div>
+                                <div class="flex justify-end w-full">
+                                    <input type="number" placeholder="Code postal" v-model="codePostal">
+                                </div>
                             </div>
                             <table class="border-collapse table-fixed w-full text-sm">
                                 <thead>
@@ -67,7 +72,8 @@
                                             {{element.name}}</td>
                                         <td
                                             class="px-5 py-5 border-b border-gray-200 bg-white text-center text-sm w-2/5">
-                                            <button class="text-red-500" @click="deleteElement(element.id)"><i class="fas fa-2x fa-times"></i></button></td>
+                                            <button class="text-red-500" @click="deleteElement(element.id)"><i
+                                                    class="fas fa-2x fa-times"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -98,16 +104,11 @@
 
                         </div>
                         <div class="w-2/4">
-                            <l-map style="height:50vh;width=25%" @click="addMarker($event)"
-                                :center="center" :zoom="14">
+                            <l-map style="height:50vh;width=25%" @click="addMarker($event)" :center="center" :zoom="14">
                                 <l-marker v-for="marker, index in markers" v-show="markers" v-bind:key="index"
                                     :lat-lng="marker.latlng" @click="deleteMarker(index)"></l-marker>
                                 <l-polygon :lat-lngs="polygon" v-if="render"></l-polygon>
-                                <l-polyline
-                                  :lat-lngs="polyline"
-                                  color="green"
-                                  v-if="render"
-                                />
+                                <l-polyline :lat-lngs="polyline" color="green" v-if="render" />
                                 <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" layer-type="base"
                                     name="OpenStreetMap"></l-tile-layer>
                                 <l-geo-json v-for="element in listGeoJSON" v-show="listGeoJSON" v-bind:key="element.id"
@@ -161,6 +162,7 @@ export default {
         onEachFeature: this.onEachFeature,
         style: this.setGeoJsonStyle,
       },
+      codePostal: '',
       render: false,
     }
   },
@@ -265,7 +267,7 @@ export default {
         name: this.name,
         map_id: this.map.id
       }
-      this.polygon = []
+      this.polyline = []
       this.name = ''
       this.render = false
       this.$inertia.post(route('map.store'), data)
@@ -283,8 +285,11 @@ export default {
     mapElement(newElement, oldElement){
       this.listGeoJSON = newElement
     },
-    polygon(newPolygon, oldPolygon) {
-      this.polygon = newPolygon
+    codePostal(newElement, oldElement){
+      axios.get('https://geo.api.gouv.fr/communes?codePostal='+newElement+'&format=geojson')
+      .then(response => {
+        this.center = [response.data.features[0].geometry.coordinates[1], response.data.features[0].geometry.coordinates[0]]
+      })
     }
   }
 };
