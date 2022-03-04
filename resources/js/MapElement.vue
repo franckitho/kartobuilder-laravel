@@ -112,13 +112,13 @@
                                 <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" layer-type="base"
                                     name="OpenStreetMap"></l-tile-layer>
                                 <l-geo-json v-for="element in listGeoJSON" v-show="listGeoJSON" v-bind:key="element.id"
-                                    :geojson="element.GeoJSON" :optionsStyle="{
-                                    'color': '#9C27B0',
-                                    'weight': 5,
-                                    'fillColor': '#9C27B0',
-                                    'opacity': 0.65,
-                                    'dashArray': /*currentZoomLevel > 17 ? '5,10' : */'0'
-                                      }"></l-geo-json>
+                                    :geojson="element.GeoJSON"></l-geo-json>
+
+                                <l-control position="bottomleft" v-if="phase !== 0">
+                                    <button class="px-3 py-2 bg-white border-2" @click="undo(phase)">
+                                        <i class="fas fa-undo"></i>
+                                    </button>
+                                </l-control>
                             </l-map>
                         </div>
                     </div>
@@ -133,7 +133,7 @@
 import Inertia from '@inertiajs/inertia'
 import Axios from 'axios'
 import "leaflet/dist/leaflet.css"
-import { LMap, LTileLayer, LMarker, LGeoJson, LPolygon, LPolyline} from "@vue-leaflet/vue-leaflet";
+import { LMap, LTileLayer, LMarker, LGeoJson, LPolygon, LPolyline, LControl} from "@vue-leaflet/vue-leaflet";
 import axios from 'axios';
 import AppLayout from '@/Layouts/AppLayout'
 import {ref} from 'vue'
@@ -146,6 +146,7 @@ export default {
     LMarker,
     LPolygon,
     LPolyline,
+    LControl,
     AppLayout
   },
   data() {
@@ -158,10 +159,6 @@ export default {
       polyline: [],
       listGeoJSON: null,
       name: '',
-      geojsonOptions: {
-        onEachFeature: this.onEachFeature,
-        style: this.setGeoJsonStyle,
-      },
       codePostal: '',
       render: false,
     }
@@ -279,7 +276,22 @@ export default {
       return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
         (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
       )
-    }
+    },
+    undo(phase) {
+      this.render = false;
+      if(phase === 1) {
+        this.markers.pop()
+      }
+      if(phase === 2) {
+        this.polygon.pop()
+      }
+      if(phase === 3) {
+        this.polyline.pop()
+      }
+      this.$nextTick(() => {
+          this.render = true
+      });
+    },
   },
   watch: {
     mapElement(newElement, oldElement){
