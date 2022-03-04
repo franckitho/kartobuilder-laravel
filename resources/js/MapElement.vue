@@ -15,7 +15,7 @@
                                 <div class="flex space-x-2">
                                     <button
                                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                                        @click="this.phase = 1" v-if="this.phase === 0 || this.phase === 2">
+                                        @click="this.phase = 1" v-if="this.phase === 0">
                                         Point
                                     </button>
                                     <button
@@ -25,7 +25,7 @@
                                     </button>
                                     <button
                                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                                        @click="this.phase = 2" v-if="this.phase === 0 || this.phase === 1">
+                                        @click="this.phase = 2" v-if="this.phase === 0">
                                         Aera
                                     </button>
                                     <button
@@ -35,7 +35,7 @@
                                     </button>
                                     <button
                                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                                        @click="this.phase = 3" v-if="this.phase === 0 || this.phase === 1">
+                                        @click="this.phase = 3" v-if="this.phase === 0">
                                         Path
                                     </button>
                                     <button
@@ -108,15 +108,20 @@
                                 <l-marker v-for="marker, index in markers" v-show="markers" v-bind:key="index"
                                     :lat-lng="marker.latlng" @click="deleteMarker(index)"></l-marker>
                                 <l-polygon :lat-lngs="polygon" v-if="render"></l-polygon>
-                                <l-polyline :lat-lngs="polyline" color="green" v-if="render" />
+                                <l-polyline :lat-lngs="polyline" v-if="render" />
                                 <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" layer-type="base"
                                     name="OpenStreetMap"></l-tile-layer>
                                 <l-geo-json v-for="element in listGeoJSON" v-show="listGeoJSON" v-bind:key="element.id"
                                     :geojson="element.GeoJSON"></l-geo-json>
 
-                                <l-control position="bottomleft" v-if="phase !== 0">
+                                <l-control class="flex space-x-2 items-center" position="bottomleft" v-if="phase !== 0">
                                     <button class="px-3 py-2 bg-white border-2" @click="undo(phase)">
                                         <i class="fas fa-undo"></i>
+                                    </button>
+                                    <input class="h-8 w-20 py-1" type="number" placeholder="lat" v-model="lat">
+                                    <input class="h-8 w-20 py-1" type="number" placeholder="lng" v-model="lng">
+                                    <button class="px-3 py-2 bg-white border-2" @click="addByCoor(phase)">
+                                        <i class="fas fa-plus"></i>
                                     </button>
                                 </l-control>
                             </l-map>
@@ -161,6 +166,8 @@ export default {
       name: '',
       codePostal: '',
       render: false,
+      lat: null,
+      lng: null,
     }
   },
   props: {
@@ -292,6 +299,21 @@ export default {
           this.render = true
       });
     },
+    addByCoor(phase){
+      this.render = false;
+      if(phase === 1) {
+        this.markers.push({id: this.uuidv4(), latlng: [this.lat, this.lng]});
+      }
+      if(phase === 2) {
+        this.polygon.push([this.lat, this.lng]);
+      }
+      if(phase === 3) {
+        this.polyline.push([this.lat, this.lng]);
+      }
+      this.$nextTick(() => {
+          this.render = true
+      });
+    }
   },
   watch: {
     mapElement(newElement, oldElement){
