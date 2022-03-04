@@ -32,17 +32,22 @@ class MapElementController extends Controller
         if($request->markers)
         {
             $data = $request->markers;
-            $ifMarker = true;
+            $type = 'marker';
+        }
+        else if($request->polygon)
+        {
+            $data = $request->polygon;
+            $type = 'polygon';
         }
         else
         {
-            $data = $request->polygon;
-            $ifMarker = false;
+            $data = $request->polyline;
+            $type = 'polyline';
         }
         MapElement::Create([
             'name' => $request->name,
             'map_id' => $request->map_id,
-            'GeoJSON' => $this->geoJson($data, $ifMarker),
+            'GeoJSON' => $this->geoJson($data, $type),
         ]);
 
         return back();
@@ -55,13 +60,13 @@ class MapElementController extends Controller
         return back();
     }
     
-    function geoJson($array, $ifMarker) 
+    function geoJson($array, $type) 
     {
   
-        $original_data = $this->formatData($array, $ifMarker);
+        $original_data = $this->formatData($array, $type);
 
         $features = array();
-        if($ifMarker) {
+        if($type == 'marker') {
             foreach($original_data as $key => $value) { 
                 $features[] = array(
                         'type' => 'Feature',
@@ -69,11 +74,17 @@ class MapElementController extends Controller
                         'geometry' => array('type' => 'Point', 'coordinates' => array((float)$value['lng'],(float)$value['lat'])),
                         );
                 };   
-        }else{
+        }else if ($type == 'polygon') {
             $features[] = array(
                 'type' => 'Feature',
                 'properties' => array(),
                 'geometry' => array('type' => 'Polygon', 'coordinates' => array($original_data)),
+                );
+        }else{
+            $features[] = array(
+                'type' => 'Feature',
+                'properties' => array(),
+                'geometry' => array('type' => 'LineString', 'coordinates' => $original_data),
                 );
         }
 
@@ -82,10 +93,10 @@ class MapElementController extends Controller
 
     }
 
-    function formatData($array, $ifMarker)
+    function formatData($array, $type)
     {
         $cleanArray = array();
-        if($ifMarker) {
+        if($type == 'marker') {
             foreach($array as $a) {
                 $c['id'] = $a['id'];
                 $c['lat'] = $a['latlng']['lat'];

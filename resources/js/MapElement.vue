@@ -19,7 +19,7 @@
                                 </button>
                                 <button
                                     class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
-                                    @click="this.phase = 0" v-if="this.phase === 1">
+                                    @click="this.phase = 0, markers = []" v-if="this.phase === 1">
                                     Cancel
                                 </button>
                                 <button
@@ -29,7 +29,17 @@
                                 </button>
                                 <button
                                     class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
-                                    @click="this.phase = 0" v-if="this.phase === 2">
+                                    @click="this.phase = 0, polygon = []" v-if="this.phase === 2">
+                                    Cancel
+                                </button>
+                                <button
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                    @click="this.phase = 3" v-if="this.phase === 0 || this.phase === 1">
+                                    Path
+                                </button>
+                                <button
+                                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
+                                    @click="this.phase = 0, polyline = []" v-if="this.phase === 3">
                                     Cancel
                                 </button>
                             </div>
@@ -71,8 +81,16 @@
                             </div>
                             <div v-if="this.phase === 2" class="flex flex-row space-x-2 mt-2">
                                 <button
-                                    class="bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
                                     @click="saveZone">
+                                    Create
+                                </button>
+                                <input type="text" v-model="name">
+                            </div>
+                            <div v-if="this.phase === 3" class="flex flex-row space-x-2 mt-2">
+                                <button
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                    @click="savePath">
                                     Create
                                 </button>
                                 <input type="text" v-model="name">
@@ -81,14 +99,25 @@
                         </div>
                         <div class="w-2/4">
                             <l-map style="height:50vh;width=25%" @click="addMarker($event)"
-                                :center="[42.309410, 	9.149022]" :zoom="14">
+                                :center="center" :zoom="14">
                                 <l-marker v-for="marker, index in markers" v-show="markers" v-bind:key="index"
                                     :lat-lng="marker.latlng" @click="deleteMarker(index)"></l-marker>
                                 <l-polygon :lat-lngs="polygon" v-if="render"></l-polygon>
+                                <l-polyline
+                                  :lat-lngs="polyline"
+                                  color="green"
+                                  v-if="render"
+                                />
                                 <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" layer-type="base"
                                     name="OpenStreetMap"></l-tile-layer>
                                 <l-geo-json v-for="element in listGeoJSON" v-show="listGeoJSON" v-bind:key="element.id"
-                                    :geojson="element.GeoJSON"></l-geo-json>
+                                    :geojson="element.GeoJSON" :optionsStyle="{
+                                    'color': '#9C27B0',
+                                    'weight': 5,
+                                    'fillColor': '#9C27B0',
+                                    'opacity': 0.65,
+                                    'dashArray': /*currentZoomLevel > 17 ? '5,10' : */'0'
+                                      }"></l-geo-json>
                             </l-map>
                         </div>
                     </div>
@@ -103,9 +132,10 @@
 import Inertia from '@inertiajs/inertia'
 import Axios from 'axios'
 import "leaflet/dist/leaflet.css"
-import { LMap, LTileLayer, LMarker, LGeoJson, LPolygon} from "@vue-leaflet/vue-leaflet";
+import { LMap, LTileLayer, LMarker, LGeoJson, LPolygon, LPolyline} from "@vue-leaflet/vue-leaflet";
 import axios from 'axios';
 import AppLayout from '@/Layouts/AppLayout'
+import {ref} from 'vue'
 
 export default {
   components: {
@@ -114,16 +144,23 @@ export default {
     LTileLayer,
     LMarker,
     LPolygon,
+    LPolyline,
     AppLayout
   },
   data() {
     return {
       zoom: 2,
       phase: 0,
+      center: [42.309410, 9.149022],
       markers: [],
       polygon: [],
+      polyline: [],
       listGeoJSON: null,
       name: '',
+      geojsonOptions: {
+        onEachFeature: this.onEachFeature,
+        style: this.setGeoJsonStyle,
+      },
       render: false,
     }
   },
@@ -135,14 +172,15 @@ export default {
   mounted() {
      this.listGeoJSON = this.mapElement
   },
-  computed: {
-    zone() {
-      return this.polygon
+  setup() {
+    let searchTerm = ref('')
+
+    return {
+      searchTerm
     }
   },
   methods: {
     addMarker(event) {
-      this.render = false
       if(this.phase === 0) {
         return
       }
@@ -170,9 +208,28 @@ export default {
             return
           }
         }
-        
+        this.render = false;
         this.polygon.push([event.latlng.lat, event.latlng.lng]);
-        this.render = true
+        this.$nextTick(() => {
+          this.render = true
+        });
+      }
+      if(this.phase === 3) {
+        var id = this.uuidv4()
+        if(event.latlng == undefined) {
+          return
+        }
+        var lastPathIndex = this.polyline.length - 1
+        if(this.polyline[lastZoneIndex]) {
+          if(this.polyline[lastZoneIndex][0] === event.latlng.lat && this.polyline[lastZoneIndex][1] === event.latlng.lng) {
+            return
+          }
+        }
+        this.render = false;
+        this.polyline.push([event.latlng.lat, event.latlng.lng]);
+        this.$nextTick(() => {
+          this.render = true
+        });
       }
     },
     deleteMarker(id) {
@@ -193,6 +250,18 @@ export default {
       this.phase = 0
       var data = {
         polygon: this.polygon,
+        name: this.name,
+        map_id: this.map.id
+      }
+      this.polygon = []
+      this.name = ''
+      this.render = false
+      this.$inertia.post(route('map.store'), data)
+    },
+    savePath() {
+      this.phase = 0
+      var data = {
+        polyline: this.polyline,
         name: this.name,
         map_id: this.map.id
       }
