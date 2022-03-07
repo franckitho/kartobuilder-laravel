@@ -2,7 +2,7 @@
 
 ## Introduction 
 
-Kartobuilder est un package php pour le framework laravel qui fonctionne avec la pile inertia jetstream pour construire votre propre carte. Ce package fonctionne avec [vue-leafleat](https://github.com/vue-leaflet/vue-leaflet) (vue3).
+Kartobuilder is a php package for the laravel framework that works with the inertia jetstream stack to build your own map. This package works with [vue-leafleat](https://github.com/vue-leaflet/vue-leaflet) (vue3).
 
 **This is a beta version, any contribution is appreciated.**
 
