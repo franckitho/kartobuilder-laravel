@@ -16,7 +16,7 @@ Then install this with the artisan command
 
     php artisan kartobuilder:install
 
-Finally migrate your bd and en build mix
+Finally migrate your db and en build mix
 
     php artisan migrate
     npm install && npm run dev
