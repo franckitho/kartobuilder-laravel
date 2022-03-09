@@ -31,19 +31,22 @@ class MapElementController extends Controller
     {
         if($request->markers)
         {
-            $data = $request->markers;
+            $data[0] = $request->markers;
             $type = 'marker';
         }
         else if($request->polygon)
         {
-            $data = $request->polygon;
+            $data[0] = $request->polygon;
             $type = 'polygon';
         }
         else
         {
-            $data = $request->polyline;
+            $data[0] = $request->polyline;
             $type = 'polyline';
         }
+
+        $data[1] = $request->properties;
+
         MapElement::Create([
             'name' => $request->name,
             'map_id' => $request->map_id,
@@ -63,27 +66,27 @@ class MapElementController extends Controller
     function geoJson($array, $type) 
     {
   
-        $original_data = $this->formatData($array, $type);
+        $original_data = $this->formatData($array[0], $type);
 
         $features = array();
         if($type == 'marker') {
             foreach($original_data as $key => $value) { 
                 $features[] = array(
                         'type' => 'Feature',
-                        'properties' => array(),
+                        'properties' => $array[1],
                         'geometry' => array('type' => 'Point', 'coordinates' => array((float)$value['lng'],(float)$value['lat'])),
                         );
                 };   
         }else if ($type == 'polygon') {
             $features[] = array(
                 'type' => 'Feature',
-                'properties' => array(),
+                'properties' => $array[1],
                 'geometry' => array('type' => 'Polygon', 'coordinates' => array($original_data)),
                 );
         }else{
             $features[] = array(
                 'type' => 'Feature',
-                'properties' => array(),
+                'properties' => $array[1],
                 'geometry' => array('type' => 'LineString', 'coordinates' => $original_data),
                 );
         }

@@ -20,7 +20,7 @@
                                     </button>
                                     <button
                                         class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
-                                        @click="this.phase = 0, markers = []" v-if="this.phase === 1">
+                                        @click="this.phase = 0, markers = [], strokecolor = '#2A81CB'" v-if="this.phase === 1">
                                         Cancel
                                     </button>
                                     <button
@@ -30,7 +30,7 @@
                                     </button>
                                     <button
                                         class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
-                                        @click="this.phase = 0, polygon = []" v-if="this.phase === 2">
+                                        @click="this.phase = 0, polygon = [], strokecolor = '#2A81CB'" v-if="this.phase === 2">
                                         Cancel
                                     </button>
                                     <button
@@ -40,7 +40,7 @@
                                     </button>
                                     <button
                                         class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 border border-red-700 rounded"
-                                        @click="this.phase = 0, polyline = []" v-if="this.phase === 3">
+                                        @click="this.phase = 0, polyline = [], strokecolor = '#2A81CB'" v-if="this.phase === 3">
                                         Cancel
                                     </button>
                                 </div>
@@ -101,18 +101,30 @@
                                 </button>
                                 <input type="text" v-model="name">
                             </div>
-
+                            <div v-if="this.phase === 2 || this.phase === 3" class="mt-2 border border-gray-300 rounded bg-gray-200 p-2 rounded w-1/4">
+                              <div @click="SwitchColor('#2A81CB')" >Default Color</div>
+                              <hr class="border-gray-600 mt-1 mb-2">
+                              <div class="grid gap-2 grid-cols-3">
+                                <span @click="SwitchColor('#e74c3c')" class="h-8 w-8 cursor-pointer	red"></span>
+                                <span @click="SwitchColor('#8e44ad')" class="h-8 w-8 cursor-pointer	purple" ></span>
+                                <span @click="SwitchColor('#5352ed')" class="h-8 w-8 cursor-pointer	blue" ></span>
+                                <span @click="SwitchColor('#f1c40f')" class="h-8 w-8 cursor-pointer	yellow" ></span>
+                                <span @click="SwitchColor('#e67e22')" class="h-8 w-8 cursor-pointer	orange" ></span>
+                                <span @click="SwitchColor('#2c3e50')" class="h-8 w-8 cursor-pointer	black" ></span>
+                                <span @click="SwitchColor('#27ae60')" class="h-8 w-8 cursor-pointer	green" ></span>
+                              </div>
+                            </div>
                         </div>
                         <div class="w-2/4">
                             <l-map style="height:50vh;width=25%" @click="addMarker($event)" :center="center" :zoom="14">
                                 <l-marker v-for="marker, index in markers" v-show="markers" v-bind:key="index"
                                     :lat-lng="marker.latlng" @click="deleteMarker(index)"></l-marker>
-                                <l-polygon :lat-lngs="polygon" v-if="render"></l-polygon>
-                                <l-polyline :lat-lngs="polyline" v-if="render" />
+                                <l-polygon :lat-lngs="polygon" v-if="render" :color="strokecolor" />
+                                <l-polyline :lat-lngs="polyline" v-if="render" :color="strokecolor" />
                                 <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" layer-type="base"
                                     name="OpenStreetMap"></l-tile-layer>
                                 <l-geo-json v-for="element in listGeoJSON" v-show="listGeoJSON" v-bind:key="element.id"
-                                    :geojson="element.GeoJSON"></l-geo-json>
+                                    :geojson="element.GeoJSON" :options="options"></l-geo-json>
 
                                 <l-control class="flex space-x-2 items-center" position="bottomleft" v-if="phase !== 0">
                                     <button class="px-3 py-2 bg-white border-2" @click="undo(phase)">
@@ -161,6 +173,7 @@ export default {
       center: [42.309410, 9.149022],
       markers: [],
       polygon: [],
+      strokecolor: '#2A81CB',
       polyline: [],
       listGeoJSON: null,
       name: '',
@@ -168,6 +181,14 @@ export default {
       render: false,
       lat: null,
       lng: null,
+      options: {
+        onEachFeature: function onEachFeature(feature, layer) {
+          if(typeof layer.setStyle === 'function'){
+          console.log(feature.properties)
+          	layer.setStyle({color:feature.properties.stroke})
+          }
+        }
+      }
     }
   },
   props: {
@@ -241,6 +262,9 @@ export default {
     deleteMarker(id) {
       this.markers.splice(id, 1)
     },
+    SwitchColor(color) {
+      this.strokecolor = color
+    },
     saveMarker() {
       this.phase = 0
       var data = {
@@ -250,6 +274,7 @@ export default {
       }
       this.name = ''
       this.markers = []
+      this.strokecolor = '#2A81CB'
       this.$inertia.post(route('map.store'), data)
     },
     saveZone() {
@@ -257,10 +282,14 @@ export default {
       var data = {
         polygon: this.polygon,
         name: this.name,
+        properties: {
+          stroke: this.strokecolor
+        },
         map_id: this.map.id
       }
       this.polygon = []
       this.name = ''
+      this.strokecolor = '#2A81CB'
       this.render = false
       this.$inertia.post(route('map.store'), data)
     },
@@ -269,10 +298,14 @@ export default {
       var data = {
         polyline: this.polyline,
         name: this.name,
+        properties: {
+          stroke: this.strokecolor
+        },
         map_id: this.map.id
       }
       this.polyline = []
       this.name = ''
+      this.strokecolor = '#2A81CB'
       this.render = false
       this.$inertia.post(route('map.store'), data)
     },
@@ -328,3 +361,33 @@ export default {
   }
 };
 </script>
+<style>
+ .red {
+   background-color: #e74c3c;
+ }
+ .orange {
+   background-color: #e67e22;
+ }
+ .yellow {
+    background-color: #f1c40f;
+ }
+ .purple {
+   background-color: #8e44ad;
+ }
+ .blue {
+    background-color: #5352ed;
+ }
+ .green {
+   background-color: #27ae60;
+ }
+ .black {
+   background-color: #2c3e50;
+ }
+.inner-circle {
+  position: absolute;
+  border: 4px solid rgba(0, 0, 0, 0.0);
+  border-radius: 100%;
+  margin: 7px;
+  transition: all 0.45s;
+}
+</style>
