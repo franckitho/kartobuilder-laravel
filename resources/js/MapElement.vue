@@ -136,6 +136,14 @@
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </l-control>
+                                <l-control class="flex space-x-2 items-center" position="topright">
+                                    <input class="h-8 w-20 py-1" type="number" placeholder="lat" v-model="latCenter">
+                                    <input class="h-8 w-20 py-1" type="number" placeholder="lng" v-model="lngCenter">
+                                    <input class="h-8 w-20 py-1" type="number" placeholder="zoom" v-model="zoom">
+                                    <button class="px-3 py-2 bg-white border-2" @click="updateConfig()">
+                                        <i class="fas fa-save"></i>
+                                    </button>
+                                </l-control>
                             </l-map>
                         </div>
                     </div>
@@ -168,9 +176,11 @@ export default {
   },
   data() {
     return {
-      zoom: 2,
+      zoom: 9,
       phase: 0,
-      center: [42.309410, 9.149022],
+      latCenter: null,
+      lngCenter: null,
+      center: null,
       markers: [],
       polygon: [],
       strokecolor: '#2A81CB',
@@ -195,9 +205,34 @@ export default {
     map: Object,
     mapElement: Array,
     currentRoute: String,
+    Defaultcenter: Array,
+    Defaultzoom: Number,
   },
   mounted() {
      this.listGeoJSON = this.mapElement
+     this.center = [this.latCenter, this.lngCenter]
+     if(this.Defaultzoom !== null){
+      this.zoom = this.Defaultzoom
+     }
+     if(this.Defaultcenter !== null){
+      this.center = this.Defaultcenter
+      this.latCenter = this.Defaultcenter[0]
+      this.lngCenter = this.Defaultcenter[1]
+     }else{
+       this.center = [42.30941, 9.149022]
+     }
+  },
+  computed: {
+    center() {
+      if(this.Defaultcenter !== null){
+      this.center = this.Defaultcenter
+      this.latCenter = this.Defaultcenter[0]
+      this.lngCenter = this.Defaultcenter[1]
+     }else{
+       this.center = [42.30941, 9.149022]
+     }
+     return this.center
+    },
   },
   setup() {
     let searchTerm = ref('')
@@ -309,6 +344,14 @@ export default {
       this.render = false
       this.$inertia.post(route('map.store'), data)
     },
+    updateConfig() {
+      var data = {
+        center: this.center,
+        zoom: this.zoom
+      }
+      this.center = [this.latCenter, this.lngCenter]
+      this.$inertia.put(route('config.map', this.map.id), data)
+    },
     deleteElement(id) {
       this.$inertia.delete(route('map.destroy', id))
     },
@@ -356,6 +399,8 @@ export default {
       axios.get('https://geo.api.gouv.fr/communes?codePostal='+newElement+'&format=geojson')
       .then(response => {
         this.center = [response.data.features[0].geometry.coordinates[1], response.data.features[0].geometry.coordinates[0]]
+        this.latCenter = response.data.features[0].geometry.coordinates[1]
+        this.lngCenter = response.data.features[0].geometry.coordinates[0]
       })
     }
   }

@@ -22,6 +22,7 @@ class MapApiController extends Controller
         }
         $geoJsonResponse = array(
             'type' => 'FeatureCollection',
+            'properties' => array('center' => json_decode($map->center, true), 'zoom' => $map->zoom),
             'features' => $features,
         );
         

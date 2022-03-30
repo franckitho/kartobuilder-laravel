@@ -22,6 +22,8 @@ class MapElementController extends Controller
         }
         return Inertia::render('MapElement', [
             'map' => $map,
+            'Defaultcenter' => json_decode($map->center, true),
+            'Defaultzoom' => $map->zoom,
             'mapElement' => $mapElement,
             'currentRoute' => route('map.store'),
         ]);
