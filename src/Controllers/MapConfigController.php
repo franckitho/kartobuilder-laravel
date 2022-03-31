@@ -16,6 +16,7 @@ class MapConfigController extends Controller
         $map->center = json_encode($request->center);
         $map->zoom = $request->zoom;
         $map->save();
-        return back();
+        
+        return redirect(route('map.show', $id));
     }
 }

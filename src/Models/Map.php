@@ -11,7 +11,9 @@ class Map extends Model
     protected $table = 'maps';
 
     protected $fillable = [
-        'name'
+        'name',
+        'center',
+        'zoom'
     ];
 
     public function elements()

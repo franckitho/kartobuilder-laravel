@@ -116,7 +116,7 @@
                             </div>
                         </div>
                         <div class="w-2/4">
-                            <l-map style="height:50vh;width=25%" @click="addMarker($event)" :center="center" :zoom="14">
+                            <l-map v-if="mapHide === false" style="height:50vh;width=25%" @click="addMarker($event)" :center="center" :zoom="zoom">
                                 <l-marker v-for="marker, index in markers" v-show="markers" v-bind:key="index"
                                     :lat-lng="marker.latlng" @click="deleteMarker(index)"></l-marker>
                                 <l-polygon :lat-lngs="polygon" v-if="render" :color="strokecolor" />
@@ -176,8 +176,9 @@ export default {
   },
   data() {
     return {
-      zoom: 9,
+      zoom: this.Defaultzoom,
       phase: 0,
+      mapHide: false,
       latCenter: null,
       lngCenter: null,
       center: null,
@@ -194,7 +195,6 @@ export default {
       options: {
         onEachFeature: function onEachFeature(feature, layer) {
           if(typeof layer.setStyle === 'function'){
-          console.log(feature.properties)
           	layer.setStyle({color:feature.properties.stroke})
           }
         }
@@ -212,7 +212,13 @@ export default {
      this.listGeoJSON = this.mapElement
      this.center = [this.latCenter, this.lngCenter]
      if(this.Defaultzoom !== null){
+      this.mapHide = true
       this.zoom = this.Defaultzoom
+      this.$nextTick(() => {
+         this.mapHide = false
+      });
+     }else{
+      this.zoom = 12
      }
      if(this.Defaultcenter !== null){
       this.center = this.Defaultcenter
@@ -345,12 +351,15 @@ export default {
       this.$inertia.post(route('map.store'), data)
     },
     updateConfig() {
+      this.center = [this.latCenter, this.lngCenter]
       var data = {
         center: this.center,
         zoom: this.zoom
       }
-      this.center = [this.latCenter, this.lngCenter]
-      this.$inertia.put(route('config.map', this.map.id), data)
+      this.$inertia.put(route('config.map', this.map.id), data, {
+        onSuccess: (page) => {console.log(page)},
+        onError: (errors) => {console.log(errors)}
+      })
     },
     deleteElement(id) {
       this.$inertia.delete(route('map.destroy', id))
@@ -398,7 +407,6 @@ export default {
     codePostal(newElement, oldElement){
       axios.get('https://geo.api.gouv.fr/communes?codePostal='+newElement+'&format=geojson')
       .then(response => {
-        this.center = [response.data.features[0].geometry.coordinates[1], response.data.features[0].geometry.coordinates[0]]
         this.latCenter = response.data.features[0].geometry.coordinates[1]
         this.lngCenter = response.data.features[0].geometry.coordinates[0]
       })
