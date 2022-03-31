@@ -136,14 +136,14 @@
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </l-control>
-                                <l-control class="flex space-x-2 items-center" position="topright">
+                                <l-control class="flex space-x-2 items-center" position="topright" v-if="phase === 0">
                                     <input class="h-8 w-20 py-1" type="number" placeholder="lat" v-model="latCenter">
                                     <input class="h-8 w-20 py-1" type="number" placeholder="lng" v-model="lngCenter">
                                     <input class="h-8 w-20 py-1" type="number" placeholder="zoom" v-model="zoom">
                                     <button class="px-3 py-2 bg-white border-2" @click="updateConfig()">
                                         <i class="fas fa-save"></i>
                                     </button>
-                                </l-control>
+                                </l-control> 
                             </l-map>
                         </div>
                     </div>
