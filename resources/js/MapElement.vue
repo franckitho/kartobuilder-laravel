@@ -418,7 +418,9 @@ export default {
     addByCoor(phase){
       this.render = false;
       if(phase === 1) {
-        this.markers.push({id: this.uuidv4(), latlng: [this.lat, this.lng]});
+        var latlng = []
+        latlng = {lat: this.lat, lng: this.lng}
+        this.markers.push({id: this.uuidv4(), latlng});
       }
       if(phase === 2) {
         this.polygon.push([this.lat, this.lng]);
