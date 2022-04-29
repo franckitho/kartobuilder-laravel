@@ -67,18 +67,22 @@ class MapElementController extends Controller
     
     function geoJson($array, $type) 
     {
-  
         $original_data = $this->formatData($array[0], $type);
-
         $features = array();
+        $MarkerProperties = array();
         if($type == 'marker') {
+            if(!isset($array[1]['idpts']) || !isset($array[1]['valuepts'])) {
+                foreach($array[1] as $prop) {
+                    $MarkerProperties[$prop['idpts']] = $prop['valuepts'];
+                }
+            }
             foreach($original_data as $key => $value) { 
                 $features[] = array(
                         'type' => 'Feature',
-                        'properties' => $array[1],
+                        'properties' =>  $MarkerProperties,
                         'geometry' => array('type' => 'Point', 'coordinates' => array((float)$value['lng'],(float)$value['lat'])),
                         );
-                };   
+            }
         }else if ($type == 'polygon') {
             $features[] = array(
                 'type' => 'Feature',

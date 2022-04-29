@@ -77,21 +77,39 @@
                                     </tr>
                                 </tbody>
                             </table>
-                            <div v-if="this.phase === 1" class="flex flex-row space-x-2 mt-2">
-                                <button
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                                    @click="saveMarker">
-                                    Create
-                                </button>
-                                <input type="text" v-model="name">
+                            <div v-if="this.phase === 1" class="flex flex-col space-x-2 mt-2">
+                                <div class="w-full flex flex-row space-x-2">
+                                  <button
+                                      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                      @click="saveMarker">
+                                      Create
+                                  </button>
+                                  <input type="text" v-model="name">
+                                </div>
+                                <div>
+                                    <div v-for="p in prop" v-bind:key="p.idPoint">
+                                        <div>
+                                          {{p.idpts}}: {{p.valuepts}}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="w-full mt-2">
+                                  <input type="text" v-model="idPoint"> : <input type="text" v-model="valuePoint">
+                                  <button
+                                      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                      @click="appendForm">
+                                      <i class="fas fa-plus"></i>
+                                  </button>
+                                </div>
                             </div>
                             <div v-if="this.phase === 2" class="flex flex-row space-x-2 mt-2">
-                                <button
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
-                                    @click="saveZone">
-                                    Create
-                                </button>
-                                <input type="text" v-model="name">
+                             
+                                  <button
+                                      class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 border border-blue-700 rounded"
+                                      @click="saveZone">
+                                      Create
+                                  </button>
+                                  <input type="text" v-model="name">
                             </div>
                             <div v-if="this.phase === 3" class="flex flex-row space-x-2 mt-2">
                                 <button
@@ -182,7 +200,10 @@ export default {
       latCenter: null,
       lngCenter: null,
       center: null,
+      valuePoint: null,
+      idPoint: null,
       markers: [],
+      prop: [],
       polygon: [],
       strokecolor: '#2A81CB',
       polyline: [],
@@ -306,15 +327,25 @@ export default {
     SwitchColor(color) {
       this.strokecolor = color
     },
+    appendForm() {
+      this.prop.push({ idpts: this.idPoint, valuepts: this.valuePoint })
+      this.idPoint = null
+      this.valuePoint = null
+      console.log(this.prop)
+    },
     saveMarker() {
       this.phase = 0
       var data = {
         markers: this.markers,
         name: this.name,
-        map_id: this.map.id
+        map_id: this.map.id,
+        properties: this.prop
       }
       this.name = ''
       this.markers = []
+      this.prop = []
+      this.idPoint = ''
+      this.valuePoint = ''
       this.strokecolor = '#2A81CB'
       this.$inertia.post(route('map.store'), data)
     },
